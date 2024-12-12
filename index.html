@@ -2,280 +2,698 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Exam Flashcards</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>    <style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
         body {
             font-family: sans-serif;
         }
-        .card {
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .flashcard {
             cursor: pointer;
             perspective: 1000px;
-            margin-bottom: 1rem;
+            width: 300px;
+            height: 200px;
         }
-        .card-inner {
+        .flashcard-inner {
             position: relative;
             width: 100%;
             height: 100%;
-            transition: transform 0.8s;
+            transition: transform 0.6s;
             transform-style: preserve-3d;
         }
-        .card.flipped .card-inner {
+        .flashcard.flipped .flashcard-inner {
             transform: rotateY(180deg);
         }
-        .card-face {
+        .flashcard-face {
             position: absolute;
             width: 100%;
             height: 100%;
             backface-visibility: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
+            background-color: #fff;
             border: 1px solid #ccc;
-            border-radius: 5px;
-            background-color: #f0f0f0;
+            border-radius: 0.25rem;
+            padding: 1rem;
+            box-sizing: border-box;
         }
-        .card-front {
-          background-color: lightblue;
+        .flashcard-front {
+            background-color: lightblue;
         }
-        .card-back {
+        .flashcard-back {
             background-color: lightcoral;
             transform: rotateY(180deg);
         }
+        .flashcard.memorized .flashcard-face {
+    background-color: lightgreen;
+}
         .memorized {
-          opacity: 0.5;
+            opacity: 0.5;
         }
     </style>
 </head>
 <body>
     <div class="container mt-4">
         <h1>Exam Flashcards</h1>
-
-        <div class="mb-3">
-          <button class="btn btn-primary" id="showAll">Show All</button>
-          <button class="btn btn-warning" id="showNeedToLearn">Need to Learn</button>
-        </div>
-
-        <div id="flashcards-container">
-        </div>
+        <!-- <div class="mb-3">
+            <button class="btn btn-primary" onclick="showAll()">Show All</button>
+            <button class="btn btn-secondary" onclick="showNeedToLearn()">Show Need to Learn</button>
+        </div> -->
+        <div class="card-container" id="flashcards"></div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
-    <script>
-        const flashcardsData = [
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-           //Section 2
-    { question: "Where was Sumer?", answer: "In southeast Mesopotamia.", memorized: false },
-    { question: "What do “rural” and “urban” mean?", answer: "Urban-City, Rural-Countryside. Urban refers to densely populated areas with infrastructure, while rural describes sparsely populated areas with agricultural or natural landscapes.", memorized: false },
-    { question: "When did city-states have populations over 100,000 people?", answer: "Around 2000 BCE. This marked a significant period of urban growth and development in Mesopotamia.", memorized: false },
-    { question: "What is the definition of a city-state?", answer: "A city-state is an independent city and the surrounding countryside it controls. It functions as its own political entity, with its own government and laws.", memorized: false },
-    { question: "How did city-states in Sumer defend themselves?", answer: "City-states built thick walls for protection. These walls were often made of mud bricks and provided a strong defense against invaders.", memorized: false },
-    { question: "How did city-states in Sumer attack others?", answer: "They surrounded the walls and waited for them to starve (siege warfare) and used strong armies. They also employed direct assaults using siege engines and other military tactics.", memorized: false },
-    { question: "Which city-states held power early in Sumer?", answer: "Kish, Uruk, and Ur were among the most powerful city-states in early Sumer. They competed for dominance and played significant roles in Sumerian history.", memorized: false },
-    { question: "What was the first epic story in Mesopotamia?", answer: "The Epic of Gilgamesh. This epic poem tells the story of a legendary king of Uruk and explores themes of mortality, friendship, and the search for immortality.", memorized: false },
-    { question: "Where did the Akkadian empire begin?", answer: "North of Sumer. The Akkadian Empire expanded southward into Sumer, uniting the region under its rule.", memorized: false },
-    { question: "Which king led the Akkadians during its empire?", answer: "Sargon. Sargon of Akkad was a powerful and ambitious ruler who conquered much of Mesopotamia and established the Akkadian Empire.", memorized: false },
-    { question: "How did the Akkadians conquer so much territory?", answer: "They had a permanent army. This professional army, unlike earlier militias, allowed for sustained campaigns and effective control of conquered territories.", memorized: false },
-    { question: "Why did the Akkadian Empire collapse?", answer: "After the death of Sargon, new rulers could not keep the empire together. Internal rebellions, economic problems, and invasions from outside groups contributed to the empire's decline.", memorized: false },
-    { question: "What is polytheism?", answer: "The worship of many gods. Sumerian religion was polytheistic, with a pantheon of gods and goddesses representing various aspects of nature and human life.", memorized: false },
-    { question: "Why did Sumerians think they needed to please the gods?", answer: "Gods had power to affect the world, and success depended on pleasing the gods. They believed the gods controlled natural forces and human destiny.", memorized: false },
-    { question: "Who were priests in Sumer?", answer: "People who performed religious ceremonies. Priests held a high social status and played important roles in Sumerian society.", memorized: false },
-    { question: "What was the social hierarchy of Sumer?", answer: "King, priest, craftspeople, merchants, traders, farmers, laborers, and slaves. This was a stratified society with varying levels of power and status.", memorized: false },
-    { question: "What job was available to women in Sumer?", answer: "Taking care of children, upper-class women could be educated and priestesses in temples. While most women's roles were domestic, some had opportunities for education and religious roles.", memorized: false },
-    //Section 3
-    { question: "How did Sumerians write cuneiform?", answer: "On clay tablets using a reed stylus to make wedge-shaped marks. Cuneiform was one of the earliest forms of writing.", memorized: false },
-    { question: "What did pictographs represent?", answer: "Picture symbols representing objects or concepts. Pictographs were the earliest form of cuneiform writing, gradually evolving into more abstract symbols.", memorized: false },
-    { question: "How did the job of a scribe first start?", answer: "To keep track of traded items or government records. Scribes were essential for managing administrative and economic information.", memorized: false },
-    { question: "What is an epic?", answer: "Long poems telling the stories of heroes and their adventures. Epics often explore themes of courage, honor, and the human condition.", memorized: false },
-    { question: "What are two different examples of how the wheel was used?", answer: "Carts, wagons, and the potter’s wheel. The invention of the wheel revolutionized transportation and pottery making.", memorized: false },
-    { question: "What was the plow used for?", answer: "Used oxen to prepare fields for planting. The plow significantly increased agricultural productivity.", memorized: false },
-    { question: "Why was bronze such an important technological advancement?", answer: "It was very strong and used for tools and weapons. Bronze is an alloy of copper and tin, making it harder and more durable than copper alone.", memorized: false },
-    { question: "What number was the Sumerian math system based on?", answer: "60 (sexagesimal). This system is the origin of our 60-second minute and 60-minute hour.", memorized: false },
-    { question: "What did Sumerians use to build their houses?", answer: "Mud bricks. These bricks were made from readily available mud and dried in the sun.", memorized: false },
-    { question: "What was the structure of a ziggurat?", answer: "A pyramid-shaped stepped tower. Ziggurats were religious structures dedicated to specific gods.", memorized: false },
-    { question: "Why were gold and silver used in jewelry?", answer: "Gold and silver are used for jewelry because they are valuable, durable, and aesthetically pleasing. They are also relatively rare, which adds to their desirability.", memorized: false },
-    //Section 4
-    { question: "What is a monarch?", answer: "A ruler of a kingdom or empire.", memorized: false },
-    { question: "What made Hammurabi an effective leader?", answer: "Hammurabi was an effective leader because he united the Babylonian Empire, created a comprehensive code of laws (Hammurabi's Code), and focused on improving infrastructure and trade.", memorized: false },
-    { question: "Name two reasons why Hammurabi’s Code of laws was important?", answer: "It was written down, making the laws clear and consistent, and it dealt with almost every part of life, providing a framework for social order.", memorized: false },
-    { question: "Why did the Babylonian Empire decline?", answer: "After Hammurabi's death, a series of weaker rulers, economic problems, and invasions from outside groups led to the decline of the Babylonian Empire.", memorized: false },
-    { question: "What two military advantages did the Hittites use to conquer Mesopotamia?", answer: "The Hittites used chariots, which provided mobility on the battlefield, and iron weapons, which were stronger than the bronze weapons of their enemies.", memorized: false },
-    { question: "How did the Assyrians keep control over their empire?", answer: "The Assyrians used a strong, well-organized army, a centralized government, and a policy of terror to suppress rebellions and maintain control over their vast empire.", memorized: false },
-    { question: "What helped the Assyrian army move from place to place?", answer: "A well-developed network of roads and supply lines facilitated the movement of the Assyrian army across their empire.", memorized: false },
-    { question: "Which kingdom was led by Nebuchadnezzar?", answer: "The Chaldean kingdom (also known as the Neo-Babylonian Empire) was led by Nebuchadnezzar II.", memorized: false },
-    { question: "Why do we call the Chaldean empire the Neo-Babylonians?", answer: "The Chaldeans established a new Babylonian empire centuries after the first Babylonian Empire, hence the name Neo-Babylonian (Neo meaning 'new').", memorized: false },
-    { question: "Why did the Phoenicians become traders?", answer: "Phoenicia had limited fertile land for agriculture, so they turned to maritime trade to acquire resources and wealth.", memorized: false },
-    { question: "What was the capital of Phoenicia?", answer: "Tyre was the most important and powerful of the Phoenician city-states and often considered their capital.", memorized: false },
-    { question: "Who did Phoenicia trade with?", answer: "The Phoenicians traded with various civilizations throughout the Mediterranean, including Egypt, Greece, and other regions of the Middle East and North Africa.", memorized: false },
-    { question: "What was the most important colony of Phoenicia called?", answer: "Carthage, located in present-day Tunisia, was the most important Phoenician colony.", memorized: false },
-    { question: "Name the items that Phoenicians traded.", answer: "The Phoenicians traded purple dye (made from murex snails), cedar wood, textiles, glass, metalwork, and other manufactured goods.", memorized: false },
-    { question: "Why was the Phoenician alphabet important?", answer: "The Phoenician alphabet was important because it was a simplified writing system of 22 characters that was easily adaptable by other cultures, influencing the Greek and later the Roman alphabets.", memorized: false },
+    <script>
+   const flashcardsData = [
+    // Section 2
+    {
+        question: "Where was Sumer?",
+        answer: "In southeast Mesopotamia.",
+        memorized: false
+    },
+    {
+        question: "What do “rural” and “urban” mean?",
+        answer: "Urban-City, Rural-Countryside. Urban refers to densely populated areas with infrastructure, while rural describes sparsely populated areas with agricultural or natural landscapes.",
+        memorized: false
+    },
+    {
+        question: "When did city-states have populations over 100,000 people?",
+        answer: "Around 2000 BCE. This marked a significant period of urban growth and development in Mesopotamia.",
+        memorized: false
+    },
+    {
+        question: "What is the definition of a city-state?",
+        answer: "A city-state is an independent city and the surrounding countryside it controls. It functions as its own political entity, with its own government and laws.",
+        memorized: false
+    },
+    {
+        question: "How did city-states in Sumer defend themselves?",
+        answer: "City-states built thick walls for protection. These walls were often made of mud bricks and provided a strong defense against invaders.",
+        memorized: false
+    },
+    {
+        question: "How did city-states in Sumer attack others?",
+        answer: "They surrounded the walls and waited for them to starve (siege warfare) and used strong armies. They also employed direct assaults using siege engines and other military tactics.",
+        memorized: false
+    },
+    {
+        question: "Which city-states held power early in Sumer?",
+        answer: "Kish, Uruk, and Ur were among the most powerful city-states in early Sumer. They competed for dominance and played significant roles in Sumerian history.",
+        memorized: false
+    },
+    {
+        question: "What was the first epic story in Mesopotamia?",
+        answer: "The Epic of Gilgamesh. This epic poem tells the story of a legendary king of Uruk and explores themes of mortality, friendship, and the search for immortality.",
+        memorized: false
+    },
+    {
+        question: "Where did the Akkadian empire begin?",
+        answer: "North of Sumer. The Akkadian Empire expanded southward into Sumer, uniting the region under its rule.",
+        memorized: false
+    },
+    {
+        question: "Which king led the Akkadians during its empire?",
+        answer: "Sargon. Sargon of Akkad was a powerful and ambitious ruler who conquered much of Mesopotamia and established the Akkadian Empire.",
+        memorized: false
+    },
+    {
+        question: "How did the Akkadians conquer so much territory?",
+        answer: "They had a permanent army. This professional army, unlike earlier militias, allowed for sustained campaigns and effective control of conquered territories.",
+        memorized: false
+    },
+    {
+        question: "Why did the Akkadian Empire collapse?",
+        answer: "After the death of Sargon, new rulers could not keep the empire together. Internal rebellions, economic problems, and invasions from outside groups contributed to the empire's decline.",
+        memorized: false
+    },
+    {
+        question: "What is polytheism?",
+        answer: "The worship of many gods. Sumerian religion was polytheistic, with a pantheon of gods and goddesses representing various aspects of nature and human life.",
+        memorized: false
+    },
+    {
+        question: "Why did Sumerians think they needed to please the gods?",
+        answer: "Gods had power to affect the world, and success depended on pleasing the gods. They believed the gods controlled natural forces and human destiny.",
+        memorized: false
+    },
+    {
+        question: "Who were priests in Sumer?",
+        answer: "People who performed religious ceremonies. Priests held a high social status and played important roles in Sumerian society.",
+        memorized: false
+    },
+    {
+        question: "What was the social hierarchy of Sumer?",
+        answer: "King, priest, craftspeople, merchants, traders, farmers, laborers, and slaves. This was a stratified society with varying levels of power and status.",
+        memorized: false
+    },
+    {
+        question: "What job was available to women in Sumer?",
+        answer: "Taking care of children, upper-class women could be educated and priestesses in temples. While most women's roles were domestic, some had opportunities for education and religious roles.",
+        memorized: false
+    },
+    // Section 3
+    {
+        question: "How did Sumerians write cuneiform?",
+        answer: "On clay tablets using a reed stylus to make wedge-shaped marks. Cuneiform was one of the earliest forms of writing.",
+        memorized: false
+    },
+    {
+        question: "What did pictographs represent?",
+        answer: "Picture symbols representing objects or concepts. Pictographs were the earliest form of cuneiform writing, gradually evolving into more abstract symbols.",
+        memorized: false
+    },
+    {
+        question: "How did the job of a scribe first start?",
+        answer: "To keep track of traded items or government records. Scribes were essential for managing administrative and economic information.",
+        memorized: false
+    },
+    {
+        question: "What is an epic?",
+        answer: "Long poems telling the stories of heroes and their adventures. Epics often explore themes of courage, honor, and the human condition.",
+        memorized: false
+    },
+    {
+        question: "What are two different examples of how the wheel was used?",
+        answer: "Carts, wagons, and the potter’s wheel. The invention of the wheel revolutionized transportation and pottery making.",
+        memorized: false
+    },
+    {
+        question: "What was the plow used for?",
+        answer: "Used oxen to prepare fields for planting. The plow significantly increased agricultural productivity.",
+        memorized: false
+    },
+    {
+        question: "Why was bronze such an important technological advancement?",
+        answer: "It was very strong and used for tools and weapons. Bronze is an alloy of copper and tin, making it harder and more durable than copper alone.",
+        memorized: false
+    },
+    {
+        question: "What number was the Sumerian math system based on?",
+        answer: "60 (sexagesimal). This system is the origin of our 60-second minute and 60-minute hour.",
+        memorized: false
+    },
+    {
+        question: "What did Sumerians use to build their houses?",
+        answer: "Mud bricks. These bricks were made from readily available mud and dried in the sun.",
+        memorized: false
+    },
+    {
+        question: "What was the structure of a ziggurat?",
+        answer: "A pyramid-shaped stepped tower. Ziggurats were religious structures dedicated to specific gods.",
+        memorized: false
+    },
+    {
+        question: "Why were gold and silver used in jewelry?",
+        answer: "Gold and silver are used for jewelry because they are valuable, durable, and aesthetically pleasing. They are also relatively rare, which adds to their desirability.",
+        memorized: false
+    },
+    // Section 4
+    {
+        question: "What is a monarch?",
+        answer: "A ruler of a kingdom or empire.",
+        memorized: false
+    },
+    {
+        question: "What made Hammurabi an effective leader?",
+        answer: "Hammurabi was an effective leader because he united the Babylonian Empire, created a comprehensive code of laws (Hammurabi's Code), and focused on improving infrastructure and trade.",
+        memorized: false
+    },
+    {
+        question: "Name two reasons why Hammurabi’s Code of laws was important?",
+        answer: "It was written down, making the laws clear and consistent, and it dealt with almost every part of life, providing a framework for social order.",
+        memorized: false
+    },
+    {
+        question: "Why did the Babylonian Empire decline?",
+        answer: "After Hammurabi's death, a series of weaker rulers, economic problems, and invasions from outside groups led to the decline of the Babylonian Empire.",
+        memorized: false
+    },
+    {
+        question: "What two military advantages did the Hittites use to conquer Mesopotamia?",
+        answer: "The Hittites used chariots, which provided mobility on the battlefield, and iron weapons, which were stronger than the bronze weapons of their enemies.",
+        memorized: false
+    },
+    {
+        question: "How did the Assyrians keep control over their empire?",
+        answer: "The Assyrians used a strong, well-organized army, a centralized government, and a policy of terror to suppress rebellions and maintain control over their vast empire.",
+        memorized: false
+    },
+    {
+        question: "What helped the Assyrian army move from place to place?",
+        answer: "A well-developed network of roads and supply lines facilitated the movement of the Assyrian army across their empire.",
+        memorized: false
+    },
+    {
+        question: "Which kingdom was led by Nebuchadnezzar?",
+        answer: "The Chaldean kingdom (also known as the Neo-Babylonian Empire) was led by Nebuchadnezzar II.",
+        memorized: false
+    },
+    {
+        question: "Why do we call the Chaldean empire the Neo-Babylonians?",
+        answer: "The Chaldeans established a new Babylonian empire centuries after the first Babylonian Empire, hence the name Neo-Babylonian (Neo meaning 'new').",
+        memorized: false
+    },
+    {
+        question: "Why did the Phoenicians become traders?",
+        answer: "Phoenicia had limited fertile land for agriculture, so they turned to maritime trade to acquire resources and wealth.",
+        memorized: false
+    },
+    {
+        question: "What was the capital of Phoenicia?",
+        answer: "Tyre was the most important and powerful of the Phoenician city-states and often considered their capital.",
+        memorized: false
+    },
+    {
+        question: "Who did Phoenicia trade with?",
+        answer: "The Phoenicians traded with various civilizations throughout the Mediterranean, including Egypt, Greece, and other regions of the Middle East and North Africa.",
+        memorized: false
+    },
+    {
+        question: "What was the most important colony of Phoenicia called?",
+        answer: "Carthage, located in present-day Tunisia, was the most important Phoenician colony.",
+        memorized: false
+    },
+    {
+        question: "Name the items that Phoenicians traded.",
+        answer: "The Phoenicians traded purple dye (made from murex snails), cedar wood, textiles, glass, metalwork, and other manufactured goods.",
+        memorized: false
+    },
+    {
+        question: "Why was the Phoenician alphabet important?",
+        answer: "The Phoenician alphabet was important because it was a simplified writing system of 22 characters that was easily adaptable by other cultures, influencing the Greek and later the Roman alphabets.",
+        memorized: false
+    },
 
     // Chapter 2
-    { question: "What does the term prehistoric mean?", answer: "Prehistoric refers to the period of time before written records.", memorized: false },
-    { question: "What did scientists name the first skeleton of an Australopithecus found?", answer: "Lucy.", memorized: false },
-    { question: "Which hominid was the first to use tools?", answer: "Homo habilis (Handy Man).", memorized: false },
-    { question: "Which hominid was the first to migrate out of Africa?", answer: "Homo erectus (Upright Man).", memorized: false },
-    { question: "Which hominid was the first to develop language?", answer: "Homo neanderthalensis (Neanderthals) are believed to be the first to develop some form of language, though Homo sapiens refined it further.", memorized: false },
-    { question: "What were the first tools used for?", answer: "The first tools were used for chopping, scraping, and cutting meat and plants.", memorized: false },
-    { question: "What did early humans hunt?", answer: "Early humans hunted large animals like mammoths, bison, and deer, as well as smaller game like rabbits and birds.", memorized: false },
-    { question: "What do we call a community of people who share a common culture?", answer: "A society.", memorized: false },
-    { question: "What does domestication mean?", answer: "Domestication is the process of taming wild animals or adapting wild plants for human use.", memorized: false },
-    { question: "What types of plants began to grow that allowed humans to take their first steps towards farming?", answer: "Wild grains like wheat and barley were among the first plants domesticated by humans.", memorized: false },
-    { question: "What are megaliths?", answer: "Megaliths are large stone monuments, often used for religious or ceremonial purposes.", memorized: false },
-    { question: "What did humans worship during the Neolithic Era?", answer: "Humans during the Neolithic Era worshipped nature spirits, ancestors, and fertility goddesses. There is also evidence of sun and moon worship.", memorized: false },
-    { question: "When did humans (homo sapiens) begin to migrate out of Africa?", answer: "Homo sapiens began migrating out of Africa around 70,000-100,000 years ago.", memorized: false },
-    { question: "What is one reason we believe that early humans had religion?", answer: "Burial sites with grave goods suggest a belief in an afterlife, indicating some form of religious belief.", memorized: false },
-    { question: "What were two reasons that humans used large animals such as cows?", answer: "Large animals like cows were used for food (meat and milk) and labor (plowing fields and transportation).", memorized: false },
-
-    // Chapter 3 (Mostly duplicated from previous sections, but included for completeness)
-    // Chapter 3 (Revised and Expanded)
-    { question: "What do “rural” and “urban” mean?", answer: "Urban refers to cities, which are densely populated areas with complex infrastructure, specialized labor, and centers of trade, culture, and government. Rural refers to the countryside, which is characterized by lower population density, agricultural activities, and closer connections to nature.", memorized: false },
-    { question: "How did city-states in Sumer defend themselves?", answer: "Sumerian city-states defended themselves primarily by building thick, fortified walls made of mud bricks. These walls provided a physical barrier against invaders. They also had organized armies and employed defensive strategies like moats and watchtowers.", memorized: false },
-    { question: "How did city-states in Sumer attack others?", answer: "Sumerian city-states attacked each other using siege warfare (surrounding a city and cutting off supplies), direct assaults with armies, and sometimes by using battering rams or other siege engines to breach walls. Warfare was common between these competing city-states.", memorized: false },
-    { question: "Which city-states held power early in Sumer?", answer: "Early Sumer was dominated by several powerful city-states, including Kish, Uruk, Ur, Lagash, and Nippur. These cities often vied for control of resources and territory.", memorized: false },
-    { question: "Which king led the Akkadians during its empire?", answer: "Sargon of Akkad led the Akkadians. He was a powerful and ambitious ruler who conquered Sumer and created the first known empire in Mesopotamia.", memorized: false },
-    { question: "What is polytheism?", answer: "Polytheism is the belief in and worship of multiple gods and goddesses. The Sumerians, and later Mesopotamian civilizations, were polytheistic, with each deity associated with different aspects of nature or human life.", memorized: false },
-    { question: "What was the social hierarchy of Sumer?", answer: "Sumerian society had a distinct social hierarchy: 1. Kings and Priests (highest), 2. Large Landowners, Merchants, and High-Ranking Officials, 3. Artisans, Craftspeople, and Scribes, 4. Farmers and Laborers, 5. Slaves (lowest).", memorized: false },
-    { question: "What job was available to women in Sumer?", answer: "While most women in Sumer were responsible for domestic duties and raising children, some upper-class women could receive an education and become priestesses in temples. There is also evidence of women owning property and engaging in business.", memorized: false },
-    { question: "How did Sumerians write cuneiform?", answer: "Sumerians wrote cuneiform by pressing a wedge-shaped stylus (made from a reed) into soft clay tablets. The marks represented syllables or words, evolving from earlier pictographs.", memorized: false },
-    { question: "What are two different examples of how the wheel was used?", answer: "The wheel was used for transportation (carts and wagons) and for pottery making (the potter's wheel). Its invention revolutionized trade, agriculture, and other aspects of Sumerian life.", memorized: false },
-    { question: "What was the plow used for?", answer: "The plow, often pulled by oxen, was used to till the soil, preparing it for planting crops. This significantly increased agricultural productivity and allowed for larger-scale farming.", memorized: false },
-    { question: "What number was the Sumerian math system based on?", answer: "The Sumerian math system was based on the number 60 (sexagesimal). This system is the origin of our 60-second minute, 60-minute hour, and 360-degree circle.", memorized: false },
-    { question: "What was the structure of a ziggurat?", answer: "A ziggurat was a massive, stepped, pyramid-shaped temple tower. It was made of mud bricks and dedicated to a specific god or goddess. At the top was a shrine.", memorized: false },
-    { question: "What is a monarch?", answer: "A monarch is a single ruler, such as a king or queen, who holds supreme power within a kingdom or empire. Their position is usually hereditary.", memorized: false },
-    { question: "What two military advantages did the Hittites use to conquer Mesopotamia?", answer: "The Hittites had two main military advantages: chariots (which provided speed and maneuverability in battle) and iron weapons (which were stronger and more durable than the bronze weapons used by their enemies).", memorized: false },
-    { question: "How did the Assyrians keep control over their empire?", answer: "The Assyrians maintained control through a powerful and well-organized army, a centralized government with efficient administration, and a policy of terror, using brutal tactics to suppress rebellions and intimidate conquered peoples.", memorized: false },
-    { question: "Which kingdom was led by Nebuchadnezzar?", answer: "The Neo-Babylonian Empire (also known as the Chaldean Empire) was led by Nebuchadnezzar II. He is famous for rebuilding Babylon and for the Hanging Gardens.", memorized: false },
-    { question: "What was the capital of Phoenicia?", answer: "While Phoenicia was a collection of independent city-states, Tyre was the most powerful and often considered the leading city or de facto capital.", memorized: false },
-    { question: "What was the most important colony of Phoenicia called?", answer: "Carthage, located in present-day Tunisia, was the most important and influential Phoenician colony. It eventually became a major power in the Mediterranean.", memorized: false },
-    { question: "Name the items that Phoenicians traded.", answer: "The Phoenicians were renowned traders who traded a wide variety of goods, including purple dye (extracted from murex shells), cedar wood, textiles, glass, metalwork, wine, and other manufactured goods. They were skilled seafarers and established extensive trade networks.", memorized: false },
+    {
+        question: "What does the term prehistoric mean?",
+        answer: "Prehistoric refers to the period of time before written records.",
+        memorized: false
+    },
+    {
+        question: "What did scientists name the first skeleton of an Australopithecus found?",
+        answer: "Lucy.",
+        memorized: false
+    },
+    {
+        question: "Which hominid was the first to use tools?",
+        answer: "Homo habilis (Handy Man).",
+        memorized: false
+    },
+    {
+        question: "Which hominid was the first to migrate out of Africa?",
+        answer: "Homo erectus (Upright Man).",
+        memorized: false
+    },
+        {
+        question: "Which hominid was the first to develop language?",
+        answer: "Homo neanderthalensis (Neanderthals) are believed to be the first to develop some form of language, though Homo sapiens refined it further.",
+        memorized: false
+    },
+    {
+        question: "What were the first tools used for?",
+        answer: "The first tools were used for chopping, scraping, and cutting meat and plants.",
+        memorized: false
+    },
+    {
+        question: "What did early humans hunt?",
+        answer: "Early humans hunted large animals like mammoths, bison, and deer, as well as smaller game like rabbits and birds.",
+        memorized: false
+    },
+    {
+        question: "What do we call a community of people who share a common culture?",
+        answer: "A society.",
+        memorized: false
+    },
+    {
+        question: "What does domestication mean?",
+        answer: "Domestication is the process of taming wild animals or adapting wild plants for human use.",
+        memorized: false
+    },
+    {
+        question: "What types of plants began to grow that allowed humans to take their first steps towards farming?",
+        answer: "Wild grains like wheat and barley were among the first plants domesticated by humans.",
+        memorized: false
+    },
+    {
+        question: "What are megaliths?",
+        answer: "Megaliths are large stone monuments, often used for religious or ceremonial purposes.",
+        memorized: false
+    },
+    {
+        question: "What did humans worship during the Neolithic Era?",
+        answer: "Humans during the Neolithic Era worshipped nature spirits, ancestors, and fertility goddesses. There is also evidence of sun and moon worship.",
+        memorized: false
+    },
+    {
+        question: "When did humans (homo sapiens) begin to migrate out of Africa?",
+        answer: "Homo sapiens began migrating out of Africa around 70,000-100,000 years ago.",
+        memorized: false
+    },
+    {
+        question: "What is one reason we believe that early humans had religion?",
+        answer: "Burial sites with grave goods suggest a belief in an afterlife, indicating some form of religious belief.",
+        memorized: false
+    },
+    {
+        question: "What were two reasons that humans used large animals such as cows?",
+        answer: "Large animals like cows were used for food (meat and milk) and labor (plowing fields and transportation).",
+        memorized: false
+    },
 
     // Chapter 4
-    { question: "Which king was the first to unite Upper and Lower Egypt into a unified kingdom?", answer: "Narmer (also known as Menes).", memorized: false },
-    { question: "In which era of Egyptian history were the pyramids built?", answer: "The Old Kingdom.", memorized: false },
-    { question: "What did Egypt trade with Punt for?", answer: "Egypt traded with Punt for incense, myrrh, gold, ivory, and exotic animals.", memorized: false },
-    { question: "List the Egyptian gods and their specialization.", answer: "Ra (sun god), Osiris (god of the underworld), Isis (goddess of magic and motherhood), Horus (god of the sky and pharaohs), Anubis (god of embalming), Thoth (god of writing and wisdom).", memorized: false },
-    { question: "What did Egyptians call the life force of a person?", answer: "Ka.", memorized: false },
-    { question: "Why did the Egyptians bury their dead with food and drink?", answer: "The Egyptians believed that the deceased would need these items in the afterlife.", memorized: false },
-    { question: "Which king became the first pharaoh of the Middle Kingdom?", answer: "Mentuhotep II.", memorized: false },
-    { question: "Who invaded Lower Egypt to end the Middle Kingdom?", answer: "The Hyksos.", memorized: false },
-    { question: "How did Egypt's conquests provide wealth to the kingdom?", answer: "Conquests provided Egypt with tribute (payments) from conquered lands, access to resources, and expanded trade routes.", memorized: false },
-    { question: "Ramses the Great reigned for around these many years.", answer: "66 years.", memorized: false },
-    { question: "What are two of the few jobs to allow Egyptians to increase their social status?", answer: "Scribe and military leader.", memorized: false },
-    { question: "According to the book, about how many different symbols were included in hieroglyphics?", answer: "Around 600.", memorized: false },
-    { question: "The Rosetta stone was found in 1799 by soldiers from what country?", answer: "France.", memorized: false },
-    { question: "What was the most sacred part of a temple called?", answer: "The sanctuary (or holy of holies).", memorized: false },
-    { question: "Describe the style in which Egyptians painted people.", answer: "People were often depicted with their heads and legs in profile view and their torso in frontal view.", memorized: false },
+    {
+        question: "Which king was the first to unite Upper and Lower Egypt into a unified kingdom?",
+        answer: "Narmer (also known as Menes).",
+        memorized: false
+    },
+    {
+        question: "In which era of Egyptian history were the pyramids built?",
+        answer: "The Old Kingdom.",
+        memorized: false
+    },
+    {
+        question: "What did Egypt trade with Punt for?",
+        answer: "Egypt traded with Punt for incense, myrrh, gold, ivory, and exotic animals.",
+        memorized: false
+    },
+    {
+        question: "List the Egyptian gods and their specialization.",
+        answer: "Ra (sun god), Osiris (god of the underworld), Isis (goddess of magic and motherhood), Horus (god of the sky and pharaohs), Anubis (god of embalming), Thoth (god of writing and wisdom).",
+        memorized: false
+    },
+    {
+        question: "What did Egyptians call the life force of a person?",
+        answer: "Ka.",
+        memorized: false
+    },
+    {
+        question: "Why did the Egyptians bury their dead with food and drink?",
+        answer: "The Egyptians believed that the deceased would need these items in the afterlife.",
+        memorized: false
+    },
+    {
+        question: "Which king became the first pharaoh of the Middle Kingdom?",
+        answer: "Mentuhotep II.",
+        memorized: false
+    },
+    {
+        question: "Who invaded Lower Egypt to end the Middle Kingdom?",
+        answer: "The Hyksos.",
+        memorized: false
+    },
+    {
+        question: "How did Egypt's conquests provide wealth to the kingdom?",
+        answer: "Conquests provided Egypt with tribute (payments) from conquered lands, access to resources, and expanded trade routes.",
+        memorized: false
+    },
+    {
+        question: "Ramses the Great reigned for around these many years.",
+        answer: "66 years.",
+        memorized: false
+    },
+    {
+        question: "What are two of the few jobs to allow Egyptians to increase their social status?",
+        answer: "Scribe and military leader.",
+        memorized: false
+    },
+    {
+        question: "According to the book, about how many different symbols were included in hieroglyphics?",
+        answer: "Around 600.",
+        memorized: false
+    },
+    {
+        question: "The Rosetta stone was found in 1799 by soldiers from what country?",
+        answer: "France.",
+        memorized: false
+    },
+    {
+        question: "What was the most sacred part of a temple called?",
+        answer: "The sanctuary (or holy of holies).",
+        memorized: false
+    },
+    {
+        question: "Describe the style in which Egyptians painted people.",
+        answer: "People were often depicted with their heads and legs in profile view and their torso in frontal view.",
+        memorized: false
+    },
+    {
+        question: "Which figures were painted the largest in Egyptian art?",
+        answer: "Pharaohs and other important figures, such as gods and high-ranking officials, were typically depicted as the largest figures in Egyptian art to emphasize their importance and status.",
+        memorized: false
+    },
+    {
+        question: "What is the Egyptian writing system known as?",
+        answer: "Hieroglyphics.",
+        memorized: false
+    },{
+        question: "What made the Egyptian writing system so flexible?",
+        answer: "Hieroglyphics could be written in different directions (horizontally, vertically) and could represent both sounds and ideas, making it adaptable for various purposes.",
+        memorized: false
+    },
+    {
+        question: "What are two of the few jobs to allow Egyptians to increase their social status?",
+        answer: "Becoming a scribe or a successful military leader were two paths that could lead to upward social mobility in ancient Egypt.",
+        memorized: false
+    },
+    {
+        question: "According to the book, about how many different symbols were included in hieroglyphics?",
+        answer: "Around 600.",
+        memorized: false
+    },
+    {
+        question: "The Rosetta stone was found in 1799 by soldiers from what country?",
+        answer: "France.",
+        memorized: false
+    },
+    {
+        question: "What was a sphinx?",
+        answer: "A sphinx is a mythical creature with the body of a lion and the head of a human or animal. They often guarded important sites like tombs and temples.",
+        memorized: false
+    },
+    {
+        question: "Whose tomb gave archeologists the best look at Egyptian art?",
+        answer: "The tomb of Tutankhamun (King Tut) provided a remarkably well-preserved example of Egyptian art and artifacts.",
+        memorized: false
+    },
 
-    { question: "Which figures were painted the largest in Egyptian art?", answer: "Pharaohs and other important figures, such as gods and high-ranking officials, were typically depicted as the largest figures in Egyptian art to emphasize their importance and status.", memorized: false },
-            // // Chapter 5
-    { question: "What are the Varnas?", answer: "The Varnas are the four main social classes in the early Indian social system: Brahmins (priests), Kshatriyas (rulers and warriors), Vaishyas (merchants and landowners), and Shudras (servants and laborers).", memorized: false },
-    { question: "What is the definition of a caste system?", answer: "A caste system is a social hierarchy in which a person's social status is determined by birth and cannot be changed. It is a rigid system of social stratification.", memorized: false },
-    { question: "Who were the untouchables?", answer: "The untouchables (also known as Dalits) were a group outside the Varna system who were considered to be the lowest in the social hierarchy and were assigned the most menial and impure tasks.", memorized: false },
-    { question: "How did someone end up as an untouchable?", answer: "People were born into the untouchable caste. Their status was hereditary.", memorized: false },
-    { question: "What are the Sutras?", answer: "The Sutras are guides that list rules for the Indian caste system and daily life.", memorized: false },
-    { question: "What were the later Vedic texts?", answer: "The later Vedic texts are commentaries on the Vedas, including the Upanishads, which explore philosophical and spiritual concepts.", memorized: false },
-    { question: "How did Brahmanism become Hinduism?", answer: "Brahmanism evolved into Hinduism by incorporating beliefs and practices from other cultures and religions in India, expanding the pantheon of gods and developing new philosophical ideas.", memorized: false },
-    { question: "Who are the three major gods of Hinduism and what were their roles?", answer: "Brahma (the creator), Vishnu (the preserver), and Shiva (the destroyer).", memorized: false },
-    { question: "What is the goal of Hinduism?", answer: "The ultimate goal of Hinduism is moksha, liberation from the cycle of reincarnation (samsara) and union with Brahman, the universal spirit.", memorized: false },
-    { question: "What is karma? How does karma affect reincarnation?", answer: "Karma is the sum of a person's actions in this and previous lives. Good karma leads to a better rebirth, while bad karma leads to a worse rebirth.", memorized: false },
-    { question: "What are the four basic principles of Jainism?", answer: "Ahimsa (nonviolence), Satya (truthfulness), Asteya (non-stealing), and Aparigraha (non-attachment).", memorized: false },
-    { question: "Which two religions did Guru Nanak combine to create Sikhism?", answer: "Hinduism and Islam.", memorized: false },
-    { question: "What are the five items that every Sikh must wear?", answer: "The Five Ks: Kesh (uncut hair), Kangha (comb), Kara (steel bracelet), Kacchera (special undergarment), and Kirpan (dagger).", memorized: false },
-    { question: "What class was Siddhartha born into?", answer: "The Kshatriya (warrior) class. He was a prince.", memorized: false },
-    { question: "What caused Siddhartha to leave home?", answer: "Siddhartha was sheltered from suffering and, upon venturing outside his palace, encountered old age, sickness, and death, which prompted him to seek an end to suffering.", memorized: false },
-    { question: "How did Siddhartha free his mind from daily concerns?", answer: "Siddhartha practiced meditation and asceticism (self-denial).", memorized: false },
-    { question: "Where did Siddhartha stop to sit under a tree?", answer: "Bodh Gaya, under the Bodhi tree.", memorized: false },
-    { question: "What are the three reasons for suffering?", answer: "Wanting what one does not have, wanting to keep what one already has, and not wanting what one has.", memorized: false },
-    { question: "What does the name “Buddha” mean?", answer: "The “Enlightened One” or “Awakened One”.", memorized: false },
-    { question: "What is nirvana and how do you achieve it?", answer: "Nirvana is a state of perfect peace and freedom from suffering. It is achieved by following the Eightfold Path.", memorized: false },
-    { question: "What are the Four Basic Truths of Buddhism?", answer: "1. Suffering is present in all things. 2. Suffering is caused by cravings. 3. Suffering can be overcome. 4. The way to overcome suffering is to follow the Eightfold Path.", memorized: false },
-    { question: "What are the steps along the eightfold path?", answer: "Right understanding, right thought, right speech, right action, right livelihood, right effort, right mindfulness, and right concentration.", memorized: false },
-    { question: "Name one idea that Buddhism incorporated from Hinduism and one idea that Buddhism rejects from Hinduism.", answer: "Buddhism incorporated the concept of reincarnation but rejected the caste system.", memorized: false },
-    { question: "Which king converted to Buddhism and then helped it spread throughout India?", answer: "Ashoka.", memorized: false },
-    { question: "What was a missionary's job?", answer: "A missionary's job was to spread religious beliefs to other areas.", memorized: false },
-    { question: "Name three places that Buddhism spread outside of India.", answer: "Tibet, China, and Southeast Asia (e.g., Thailand, Vietnam).", memorized: false },
-    { question: "What are the two major branches of Buddhism?", answer: "Theravada and Mahayana.", memorized: false }
+    // Chapter 5
+    {
+        question: "What are the Varnas?",
+        answer: "The Varnas are the four main social classes in the early Indian social system: Brahmins (priests), Kshatriyas (rulers and warriors), Vaishyas (merchants and landowners), and Shudras (servants and laborers).",
+        memorized: false
+    },
+    {
+        question: "What is the definition of a caste system?",
+        answer: "A caste system is a social hierarchy in which a person's social status is determined by birth and cannot be changed. It is a rigid system of social stratification.",
+        memorized: false
+    },
+    {
+        question: "Who were the untouchables?",
+        answer: "The untouchables (also known as Dalits) were a group outside the Varna system who were considered to be the lowest in the social hierarchy and were assigned the most menial and impure tasks.",
+        memorized: false
+    },
+    {
+        question: "How did someone end up as an untouchable?",
+        answer: "People were born into the untouchable caste. Their status was hereditary.",
+        memorized: false
+    },
+    {
+        question: "What are the Sutras?",
+        answer: "The Sutras are guides that list rules for the Indian caste system and daily life.",
+        memorized: false
+    },
+    {
+        question: "What were the later Vedic texts?",
+        answer: "The later Vedic texts are commentaries on the Vedas, including the Upanishads, which explore philosophical and spiritual concepts.",
+        memorized: false
+    },
+    {
+        question: "How did Brahmanism become Hinduism?",
+        answer: "Brahmanism evolved into Hinduism by incorporating beliefs and practices from other cultures and religions in India, expanding the pantheon of gods and developing new philosophical ideas.",
+        memorized: false
+    },
+    {
+        question: "Who are the three major gods of Hinduism and what were their roles?",
+        answer: "Brahma (the creator), Vishnu (the preserver), and Shiva (the destroyer).",
+        memorized: false
+    },
+    {
+        question: "What is the goal of Hinduism?",
+        answer: "The ultimate goal of Hinduism is moksha, liberation from the cycle of reincarnation (samsara) and union with Brahman, the universal spirit.",
+        memorized: false
+    },
+    {
+        question: "What is karma? How does karma affect reincarnation?",
+        answer: "Karma is the sum of a person's actions in this and previous lives. Good karma leads to a better rebirth, while bad karma leads to a worse rebirth.",
+        memorized: false
+    },
+    {
+        question: "What are the four basic principles of Jainism?",
+        answer: "Ahimsa (nonviolence), Satya (truthfulness), Asteya (non-stealing), and Aparigraha (non-attachment).",
+        memorized: false
+    },
+    {
+        question: "Which two religions did Guru Nanak combine to create Sikhism?",
+        answer: "Hinduism and Islam.",
+        memorized: false
+    },
+    {
+        question: "What are the five items that every Sikh must wear?",
+        answer: "The Five Ks: Kesh (uncut hair), Kangha (comb), Kara (steel bracelet), Kacchera (special undergarment), and Kirpan (dagger).",
+        memorized: false
+    },
+    {
+        question: "What class was Siddhartha born into?",
+        answer: "The Kshatriya (warrior) class. He was a prince.",
+        memorized: false
+    },
+    {
+        question: "What caused Siddhartha to leave home?",
+        answer: "Siddhartha was sheltered from suffering and, upon venturing outside his palace, encountered old age, sickness, and death, which prompted him to seek an end to suffering.",
+        memorized: false
+    },
+    {
+        question: "How did Siddhartha free his mind from daily concerns?",
+        answer: "Siddhartha practiced meditation and asceticism (self-denial).",
+        memorized: false
+    },
+    {
+        question: "Where did Siddhartha stop to sit under a tree?",
+        answer: "Bodh Gaya, under the Bodhi tree.",
+        memorized: false
+    },
+    {
+        question: "What are the three reasons for suffering?",
+        answer: "Wanting what one does not have, wanting to keep what one already has, and not wanting what one has.",
+        memorized: false
+    },
+    {
+        question: "What does the name “Buddha” mean?",
+        answer: "The “Enlightened One” or “Awakened One”.",
+        memorized: false
+    },
+    {
+        question: "What is nirvana and how do you achieve it?",
+        answer: "Nirvana is a state of perfect peace and freedom from suffering. It is achieved by following the Eightfold Path.",
+        memorized: false
+    },
+    {
+        question: "What are the Four Basic Truths of Buddhism?",
+        answer: "1. Suffering is present in all things. 2. Suffering is caused by cravings. 3. Suffering can be overcome. 4. The way to overcome suffering is to follow the Eightfold Path.",
+        memorized: false
+    },
+    {
+        question: "What are the steps along the eightfold path?",
+        answer: "Right understanding, right thought, right speech, right action, right livelihood, right effort, right mindfulness, and right concentration.",
+        memorized: false
+    },
+    {
+        question: "Name one idea that Buddhism incorporated from Hinduism and one idea that Buddhism rejects from Hinduism.",
+        answer: "Buddhism incorporated the concept of reincarnation but rejected the caste system.",
+        memorized: false
+    },
+    {
+        question: "Which king converted to Buddhism and then helped it spread throughout India?",
+        answer: "Ashoka.",
+        memorized: false
+    },
+    {
+        question: "What was a missionary's job?",
+        answer: "A missionary's job was to spread religious beliefs to other areas.",
+        memorized: false
+    },
+    {
+        question: "Name three places that Buddhism spread outside of India.",
+        answer: "Tibet, China, and Southeast Asia (e.g., Thailand, Vietnam).",
+        memorized: false
+    },
+    {
+        question: "What are the two major branches of Buddhism?",
+        answer: "Theravada and Mahayana.",
+        memorized: false
+    }
 ];
-
-        const flashcardsContainer = document.getElementById('flashcards-container');
-        const showAllButton = document.getElementById('showAll');
-        const showNeedToLearnButton = document.getElementById('showNeedToLearn');
-
-        function createFlashcard(cardData) {
+        function createFlashcard(flashcard, index) {
             const card = document.createElement('div');
-            card.classList.add('card', 'col-md-4', 'mb-3');
-            if (cardData.memorized) {
-              card.classList.add('memorized');
-            }
+            card.className = 'flashcard' + (flashcard.memorized ? ' memorized' : '');
+            card.onclick = () => flipCard(index);
 
             const cardInner = document.createElement('div');
-            cardInner.classList.add('card-inner');
+            cardInner.className = 'flashcard-inner' + (flashcard.flipped ? ' flipped' : '');
 
             const cardFront = document.createElement('div');
-            cardFront.classList.add('card-face', 'card-front');
-            cardFront.textContent = cardData.question;
+            cardFront.className = 'flashcard-face flashcard-front';
+            cardFront.innerHTML = '<p>' + flashcard.question + '</p>';
 
             const cardBack = document.createElement('div');
-            cardBack.classList.add('card-face', 'card-back');
-            cardBack.textContent = cardData.answer;
+            cardBack.className = 'flashcard-face flashcard-back';
+            cardBack.innerHTML = '<p>' + flashcard.answer + '</p>';
+
+            // Add the "Mark as Learned" button
+            const markButton = document.createElement('button');
+            markButton.className = 'btn btn-success mt-2';
+            markButton.textContent = flashcard.memorized ? 'Memorized' : 'Mark as Learned';
+            markButton.onclick = (e) => {
+                e.stopPropagation(); // Prevent card flip
+                toggleMemorized(index);
+            };
+            cardBack.appendChild(markButton);
 
             cardInner.appendChild(cardFront);
             cardInner.appendChild(cardBack);
             card.appendChild(cardInner);
 
-            card.addEventListener('click', () => {
-                card.classList.toggle('flipped');
-            });
-
-            card.addEventListener('dblclick', () => {
-              cardData.memorized = !cardData.memorized;
-              card.classList.toggle('memorized');
-              localStorage.setItem('flashcards', JSON.stringify(flashcardsData));
-            });
-
             return card;
         }
 
         function renderFlashcards(filter = 'all') {
-          flashcardsContainer.innerHTML = ''; // Clear existing cards
-            let cardsToRender = flashcardsData;
-            if (filter === 'needToLearn') {
-              cardsToRender = flashcardsData.filter(card => !card.memorized);
-            }
-
-            cardsToRender.forEach(cardData => {
-                const card = createFlashcard(cardData);
-                flashcardsContainer.appendChild(card);
+            const container = document.getElementById('flashcards');
+            container.innerHTML = '';
+            flashcardsData.forEach((flashcard, index) => {
+                if (filter === 'needToLearn' && flashcard.memorized) return;
+                const card = createFlashcard(flashcard, index);
+                container.appendChild(card);
             });
         }
 
-        showAllButton.addEventListener('click', () => renderFlashcards('all'));
-        showNeedToLearnButton.addEventListener('click', () => renderFlashcards('needToLearn'));
-
-        // Initial render
-        renderFlashcards();
-
-        // Local Storage
-        if (localStorage.getItem('flashcards')) {
-          const storedFlashcards = JSON.parse(localStorage.getItem('flashcards'));
-          // Update the flashcardsData with the stored data, matching by question
-          storedFlashcards.forEach(storedCard => {
-            const index = flashcardsData.findIndex(card => card.question === storedCard.question);
-            if (index !== -1) {
-              flashcardsData[index].memorized = storedCard.memorized;
-            }
-          });
-          renderFlashcards(); // Re-render after loading from local storage
+        function flipCard(index) {
+            const card = document.querySelectorAll('.flashcard')[index];
+            card.classList.toggle('flipped');
         }
 
-        window.addEventListener('beforeunload', () => {
-          localStorage.setItem('flashcards', JSON.stringify(flashcardsData));
-        });
+        function toggleMemorized(index) {
+            flashcardsData[index].memorized = !flashcardsData[index].memorized;
+            renderFlashcards(currentFilter);
+        }
 
+        let currentFilter = 'all';
+
+        function showAll() {
+            currentFilter = 'all';
+            renderFlashcards();
+        }
+
+        function toggleMemorized(index) {
+    flashcardsData[index].memorized = !flashcardsData[index].memorized;
+    renderFlashcards(currentFilter);
+}
+
+        function showNeedToLearn() {
+            currentFilter = 'needToLearn';
+            renderFlashcards('needToLearn');
+        }
+
+        renderFlashcards();
     </script>
 </body>
 </html>
